@@ -63,7 +63,7 @@ Step 3
 - CSS
 
 Step 4 — Folder Structure
-
+```bash
 ResumeAI/
 │
 ├── backend/
@@ -88,7 +88,7 @@ ResumeAI/
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
-
+```
 
 Step 5 
 
@@ -110,26 +110,28 @@ Step 6
 — Create Virtual Environment
 
 Linux
-
+```bash
 python -m venv .venv
-
+```
+```bash
 source .venv/bin/activate
-
+```
 Windows
-
+```bash
 python -m venv .venv
-
+```
+```bash
 .venv\Scripts\activate
-
+```
 Step 7 
 — Install Requirements
-
+```bash
 pip install -r requirements.txt
-
+```
 Step 8  — Install Playwright
-
+```bash
 playwright install chromium
-
+```
 
 Step 9 — Create .env
 
@@ -149,21 +151,22 @@ GOOGLE_MODEL=gemini-2.5-flash
 Step 10  — Create Data Folder
 
 Since personal information is not included in the repository, users need to create their own data directory.
-
+```bash
 data/
 │
 ├── personal/
 │
 └── projects/
+```
 
 Step 11 — Create JSON Files
 
 Inside
-
+```bash
 data/personal
-
+```
 Create
-
+```bash
 profile.json
 
 contact.json
@@ -179,7 +182,7 @@ experience.json
 certifications.json
 
 achievements.json
-
+```
 Inside
 
 data/projects
@@ -194,24 +197,26 @@ Step 12 — JSON Structure
 Here you'll provide sample JSON for each file (e.g., profile.json, contact.json, projects.json, etc.) so users know the required format.
 
 Step 13 — Run Backend
-
+```
 uvicorn backend.main:app --reload
-
+```
 Open
-
+```bash
 http://127.0.0.1:8000/docs
-
+```
 
 Step 14  — Run Frontend
-
+```bash
 cd frontend
-
+```
+```bash
 npm install
-
+```
+```bash
 npm run dev
-
+```
 Step 15 — How ResumeAI Works
-
+```bash
 Job Description
 
 ↓
@@ -249,6 +254,7 @@ HTML
 ↓
 
 PDF
+```
 
 # 📜 License
 
