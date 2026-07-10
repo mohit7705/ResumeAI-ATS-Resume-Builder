@@ -97,7 +97,7 @@ Step 5
 Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ResumeAI.git
+https://github.com/mohit7705/ResumeAI-ATS-Resume-Builder.git
 ```
 
 Go inside the project
