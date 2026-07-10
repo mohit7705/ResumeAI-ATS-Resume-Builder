@@ -1,0 +1,17 @@
+@page {
+  margin: 0;
+  size: letter;
+}
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  .resume {
+    box-shadow: none;
+    margin: 0;
+    max-width: none;
+    min-height: auto;
+  }
+}
