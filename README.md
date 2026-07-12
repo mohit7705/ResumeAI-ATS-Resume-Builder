@@ -200,10 +200,6 @@ Step 13 — Run Backend
 ```
 uvicorn backend.main:app --reload
 ```
-Open
-```bash
-http://127.0.0.1:8000/docs
-```
 
 Step 14  — Run Frontend
 ```bash
