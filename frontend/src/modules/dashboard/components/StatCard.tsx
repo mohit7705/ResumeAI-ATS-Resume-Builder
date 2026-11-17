@@ -1,24 +1,23 @@
+import type { LucideIcon } from "lucide-react";
+
 type Props = {
   title: string;
   value: string | number;
+  icon: LucideIcon;
+  onClick?: () => void;
 };
 
-export default function StatCard({
-  title,
-  value,
-}: Props) {
+export default function StatCard({ title, value, icon: Icon, onClick }: Props) {
   return (
-    <div
-      style={{
-        background: "#111827",
-        padding: 20,
-        borderRadius: 12,
-        border: "1px solid #333",
-      }}
-    >
-      <h3>{title}</h3>
+    <button type="button" className="stat" onClick={onClick}>
+      <span className="stat__icon">
+        <Icon size={22} />
+      </span>
 
-      <h1>{value}</h1>
-    </div>
+      <span>
+        <span className="stat__value">{value}</span>
+        <span className="stat__label">{title}</span>
+      </span>
+    </button>
   );
 }

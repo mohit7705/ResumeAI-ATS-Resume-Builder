@@ -1,259 +1,240 @@
-# 🚀 ResumeAI – AI-Powered ATS Resume Builder
+<div align="center">
 
-ResumeAI is an AI-powered ATS Resume Builder that intelligently analyzes job descriptions and generates recruiter-friendly, ATS-optimized resumes.
+# ResumeAI
 
-Instead of manually editing resumes for every job, ResumeAI uses Google Gemini AI to:
+**Generate ATS-friendly, one-page resumes tailored to any job — in seconds.**
 
-- Analyze Job Descriptions
-- Match Skills
-- Rank Resume Projects
-- Rewrite Project Highlights
-- Generate an ATS Professional Summary
-- Calculate ATS Score
-- Generate ATS-Friendly HTML & PDF Resume
+Paste a job description (or just a job title) and ResumeAI selects your best skills and projects, rewrites them for the role, scores the match, and exports a polished HTML + PDF resume.
 
-The project is built using FastAPI, React, TypeScript, Python, and Google Gemini.
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 
-# ✨ Features
+</div>
 
-- 🤖 AI Job Description Analysis
-- 🧠 Semantic Skill Matching
-- 📊 ATS Score Calculation
-- 📈 AI Project Ranking
-- ✍ AI Project Highlight Rewriting
-- 📝 AI Professional Summary Generation
-- 📄 ATS-Friendly Resume Generation
-- 📑 HTML Resume Preview
-- 📥 PDF Resume Export
-- 🎯 Resume Optimization for Every Job Description
+---
 
-  
-Step 3
+## Table of Contents
+- [Features](#features)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Quick Start (Docker)](#quick-start-docker)
+- [Configuration](#configuration)
+- [Local Development (without Docker)](#local-development-without-docker)
+- [Using the App](#using-the-app)
+- [API Overview](#api-overview)
+- [Project Structure](#project-structure)
+- [Data & Persistence](#data--persistence)
+- [Common Commands](#common-commands)
+- [Troubleshooting](#troubleshooting)
+- [Security Notes](#security-notes)
+- [Contributing](#contributing)
+- [License](#license)
 
-— Tech Stack
-# 🛠 Tech Stack
+---
 
-## Frontend
+## Features
 
-- React
-- TypeScript
-- Vite
+- **Two ways to generate** – paste a full job description, or enter only a job title and experience level (Fresher / Junior) and let the AI build the job profile.
+- **Smart tailoring** – picks the most relevant skills and ranks your projects against the job, then rewrites summary and project bullets for the role.
+- **ATS scoring** – overall ATS score with skill and project sub-scores, skill match, and skill-gap recommendations.
+- **Recruiter check & validation** – flags weak or missing content before you send the resume.
+- **Keyword highlighting** – optionally bolds job keywords that actually appear in your resume.
+- **One-page guarantee** – content is auto-fitted to a single page; you get a clear error if it can't fit.
+- **Photo and no-photo versions** – generates both `resume.pdf` and `resume_photo.pdf`.
+- **Multiple AI providers** – Gemini or Meta, selectable per request, with optional fallback.
+- **Profile manager UI** – dashboard with modules for Personal, Contact, Summary, Skills, Experience, Education, Projects, Certifications and Achievements.
+- **One-command deployment** – fully containerised with Docker Compose.
 
-## Backend
+## Architecture
 
-- Python
-- FastAPI
-- Pydantic
-
-## AI
-
-- Google Gemini API
-
-## PDF
-
-- Playwright
-
-## Template Engine
-
-- Jinja2
-
-## Styling
-
-- HTML
-- CSS
-
-Step 4 — Folder Structure
-```bash
-ResumeAI/
-│
-├── backend/
-├── frontend/
-├── templates/
-├── generated/
-│
-├── data.example/
-│   ├── personal/
-│   │   ├── profile.json
-│   │   ├── contact.json
-│   │   ├── summary.json
-│   │   ├── skills.json
-│   │   ├── education.json
-│   │   ├── experience.json
-│   │   ├── certifications.json
-│   │   └── achievements.json
-│   │
-│   └── projects/
-│       └── projects.json
-│
-├── requirements.txt
-├── .env.example
-├── .gitignore
+```mermaid
+flowchart LR
+    U[Browser] -->|http://localhost:8080| N[nginx + React build]
+    N -->|/generate /skills /projects ... /generated| B[FastAPI backend]
+    B --> D[(data/ JSON files)]
+    B --> T[Jinja2 templates]
+    B --> L[Gemini / Meta API]
+    B --> P[Playwright + Chromium]
+    P --> G[(generated/ HTML + PDF)]
 ```
 
-Step 5 
+The frontend container serves the UI and reverse-proxies API calls to the backend, so there is **no CORS or URL configuration** to manage.
 
-# 📥 Installation
+## Tech Stack
 
-Clone the repository
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, React Router, Axios |
+| Backend | FastAPI, Pydantic, Uvicorn, Jinja2, BeautifulSoup |
+| AI | Google Gemini (`google-genai`), Meta API, LangGraph, ChromaDB |
+| PDF | Playwright + Chromium |
+| Deployment | Docker, Docker Compose, nginx |
 
+## Quick Start (Docker)
+
+### Prerequisites
+- [Docker](https://docs.docker.com/get-docker/) with the Compose plugin (`docker compose version`)
+- A free [Gemini API key](https://aistudio.google.com/apikey)
+- About 3 GB of free disk and 2 GB+ RAM for Docker
+
+### Steps
 ```bash
-https://github.com/mohit7705/ResumeAI-ATS-Resume-Builder.git
-```
-
-Go inside the project
-
-```bash
+# 1. Clone
+git clone <your-repo-url> ResumeAI
 cd ResumeAI
-```
-Step 6
 
-— Create Virtual Environment
+# 2. Configure
+cp .env.example .env
+#    open .env and set GOOGLE_API_KEY
 
-Linux
-```bash
-python -m venv .venv
+# 3. Add your profile photo (exactly ONE .jpg or .png)
+cp /path/to/photo.jpg assets/
+
+# 4. Build and run
+docker compose up --build
 ```
+
+Open **http://localhost:8080**. The first build takes a few minutes (Python packages and Chromium); later starts are fast.
+
+Run in the background with `docker compose up -d --build`.
+
+## Configuration
+
+All settings live in `.env` (copy from `.env.example`).
+
+| Variable | Required | Description | Example |
+|---|---|---|---|
+| `GOOGLE_API_KEY` | Yes (for Gemini) | Gemini API key | `AIza...` |
+| `GOOGLE_MODEL` | Yes (for Gemini) | Gemini model name | `gemini-2.5-flash` |
+| `LLM_PROVIDER` | No | Default provider: `gemini` or `meta` | `gemini` |
+| `LLM_FALLBACK` | No | Provider to use if the main one fails | `meta` |
+| `META_API_KEY` | No | Meta API key | |
+| `META_MODEL` | No | Meta model name | |
+| `META_API_BASE` | No | Meta API base URL | `https://api.meta.ai/v1` |
+| `APP_PORT` | No | Host port for the app (default `8080`) | `9000` |
+
+After changing `.env`: `docker compose up -d --force-recreate backend`.
+
+## Local Development (without Docker)
+
+**Backend** (run from the project root):
 ```bash
-source .venv/bin/activate
-```
-Windows
-```bash
-python -m venv .venv
-```
-```bash
-.venv\Scripts\activate
-```
-Step 7 
-— Install Requirements
-```bash
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-```
-Step 8  — Install Playwright
-```bash
 playwright install chromium
+cp .env.example .env            # add your API key
+uvicorn backend.main:app --reload --port 8000
 ```
 
-Step 9 — Create .env
-
-Create a file named
-
-.env
-
-Paste
-
-```env
-GOOGLE_API_KEY=YOUR_API_KEY
-
-GOOGLE_MODEL=gemini-2.5-flash
-
-
-```
-Step 10  — Create Data Folder
-
-Since personal information is not included in the repository, users need to create their own data directory.
-```bash
-data/
-│
-├── personal/
-│
-└── projects/
-```
-
-Step 11 — Create JSON Files
-
-Inside
-```bash
-data/personal
-```
-Create
-```bash
-profile.json
-
-contact.json
-
-summary.json
-
-skills.json
-
-education.json
-
-experience.json
-
-certifications.json
-
-achievements.json
-```
-Inside
-
-data/projects
-
-Create
-
-projects.json
-
-
-Step 12 — JSON Structure
-
-Here you'll provide sample JSON for each file (e.g., profile.json, contact.json, projects.json, etc.) so users know the required format.
-
-Step 13 — Run Backend
-```
-uvicorn backend.main:app --reload
-```
-
-Step 14  — Run Frontend
+**Frontend:**
 ```bash
 cd frontend
-```
-```bash
 npm install
+npm run dev                     # http://localhost:5173
 ```
+
+> The frontend calls the API on the same origin. For local development, add a Vite proxy for the backend routes in `frontend/vite.config.ts`, or run the full stack with Docker.
+
+## Using the App
+
+1. **Fill your profile** – complete Personal, Contact, Summary, Skills, Experience, Education, Projects, Certifications and Achievements. The dashboard shows your completion progress.
+2. **Open the Resume page** and choose a mode:
+   - *Job description* – paste the posting.
+   - *Job title* – enter a title and level.
+3. Choose the AI provider, keyword highlighting, and whether to include the photo version.
+4. **Generate** – review the ATS score, skill match, gap recommendations, recruiter check and top projects.
+5. **Preview and download** the HTML or PDF.
+
+## API Overview
+
+Interactive docs are available at **http://localhost:8080/docs** when the app is running.
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/generate` | Generate a resume from a job description |
+| `POST` | `/generate/title` | Generate a resume from a job title and level |
+| `GET` | `/ai/providers` | Available AI providers and models |
+| `GET/PUT` | `/personal`, `/contact`, `/summary`, `/skills` | Profile data |
+| `GET/POST…` | `/experience`, `/education`, `/projects`, `/certifications`, `/achievements` | List-based profile sections |
+| `GET` | `/generated/...` | Generated HTML and PDF files |
+
+## Project Structure
+
+```
+ResumeAI/
+├── backend/                 # FastAPI application
+│   ├── main.py              # App entry point and resume pipeline
+│   ├── ai/                  # LLM clients, matching, ranking, rewriting, ATS score
+│   ├── api/                 # CRUD routers for profile data
+│   ├── resume/              # Engine, builder, validator, highlighter, recruiter check
+│   ├── generator/           # HTML (Jinja2) and PDF (Playwright) generation
+│   ├── models/  utils/  core/  data/
+├── frontend/                # React + Vite app
+│   ├── src/
+│   │   ├── modules/         # Feature screens (resume, skills, projects, ...)
+│   │   ├── components/      # Layout and UI components
+│   │   ├── services/        # API clients
+│   │   └── context/         # App, theme and toast state
+│   ├── Dockerfile
+│   └── nginx.conf
+├── templates/               # Resume HTML + CSS templates
+├── data/                    # Your resume data (JSON, git-ignored)
+├── assets/                  # Profile photo (git-ignored)
+├── generated/               # Output HTML/PDF (git-ignored)
+├── tests/
+├── Dockerfile               # Backend image
+├── docker-compose.yml
+├── docker-entrypoint.sh     # Seeds empty data files on first run
+├── requirements.txt
+└── .env.example
+```
+
+## Data & Persistence
+
+- `./data` and `./assets` are **bind-mounted** into the backend container, so your data survives rebuilds and can be edited on disk.
+- Empty data files are created automatically on first run.
+- Generated resumes are stored in the `generated` Docker volume.
+
+## Common Commands
+
 ```bash
-npm run dev
-```
-Step 15 — How ResumeAI Works
-```bash
-Job Description
-
-↓
-
-Gemini AI Analysis
-
-↓
-
-Skill Matching
-
-↓
-
-Project Ranking
-
-↓
-
-Summary Generation
-
-↓
-
-Project Rewrite
-
-↓
-
-ATS Score
-
-↓
-
-Resume Builder
-
-↓
-
-HTML
-
-↓
-
-PDF
+docker compose up -d --build      # start in background
+docker compose ps                 # status
+docker compose logs -f backend    # backend logs
+docker compose restart backend    # restart backend
+docker compose down               # stop (data is kept)
+docker compose down -v            # stop and remove generated files
 ```
 
-# 📜 License
+## Troubleshooting
 
-This project is licensed under the MIT License.
+| Problem | Solution |
+|---|---|
+| `env file .env not found` | Run `cp .env.example .env`. |
+| `GOOGLE_API_KEY not found` | Set the key in `.env`, then recreate the backend container. |
+| UI loads but requests fail | Make sure `frontend/src` has no `127.0.0.1:8000` left, then rebuild the frontend. |
+| `No photo found` / `Found N photos` | Keep exactly one `.jpg` or `.png` in `assets/`. |
+| `Resume is still more than 1 page` | Shorten the summary, project bullets or experience text. |
+| PDF generation crashes | Increase Docker memory (Docker Desktop → Settings → Resources). |
+| Port already in use | Set `APP_PORT` in `.env` to a free port. |
+| Slow first request | AI + PDF generation can take up to a minute; nginx allows up to 5 minutes. |
 
-Feel free to use, modify, and contribute.
+## Security Notes
+
+- Never commit `.env`; only `.env.example` belongs in the repository.
+- `data/` may contain personal information – keep it git-ignored in public repositories.
+- Rotate your API key immediately if it is ever exposed.
+
+## Contributing
+
+1. Fork the repository and create a feature branch: `git checkout -b feature/my-change`
+2. Make your changes and run the tests: `pytest tests/`
+3. Commit with a clear message and open a pull request.
+
+## License
+
+Add your license here (for example MIT) and include a `LICENSE` file in the repository root.

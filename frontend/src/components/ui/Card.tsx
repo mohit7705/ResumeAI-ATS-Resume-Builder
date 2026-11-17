@@ -1,22 +1,35 @@
+import type { ReactNode } from "react";
+
 type Props = {
-  title: string;
-  children: React.ReactNode;
+  title?: string;
+  description?: string;
+  action?: ReactNode;
+  footer?: ReactNode;
+  children: ReactNode;
 };
 
-export default function Card({ title, children }: Props) {
+export default function Card({
+  title,
+  description,
+  action,
+  footer,
+  children,
+}: Props) {
   return (
-    <div
-      style={{
-        background: "#111827",
-        border: "1px solid #2d3748",
-        borderRadius: 12,
-        padding: 25,
-        marginBottom: 20,
-      }}
-    >
-      <h2>{title}</h2>
+    <section className="card">
+      {(title || action) && (
+        <header className="card__head">
+          <div>
+            {title && <h2 className="card__title">{title}</h2>}
+            {description && <p className="card__desc">{description}</p>}
+          </div>
+          {action}
+        </header>
+      )}
 
-      {children}
-    </div>
+      <div className="card__body">{children}</div>
+
+      {footer && <footer className="card__foot">{footer}</footer>}
+    </section>
   );
 }

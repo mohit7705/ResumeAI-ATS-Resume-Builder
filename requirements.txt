@@ -43,3 +43,8 @@ google-genai
 playwright
 pydantic
 python-multipart
+beautifulsoup4
+pypdf==5.1.0
+httpx
+langgraph
+chromadb

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 
-type Page =
+export type Page =
   | "dashboard"
   | "profile"
   | "contact"

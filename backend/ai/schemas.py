@@ -14,8 +14,16 @@ class JobDescriptionResponse(BaseModel):
     role: str
     experience: str
     skills: List[str]
+    inferred_skills: List[str] = Field(default_factory=list)
+    needed_categories: List[str] = Field(default_factory=list)
     keywords: List[str]
     responsibilities: List[str]
+
+class ConfirmedResumeRequest(JobDescriptionRequest):
+    confirmed_skills: list[str] = Field(
+        default_factory=list,
+        description="Missing skills the candidate explicitly confirms knowing."
+    )
 
 class SkillMatchRequest(BaseModel):
     job_skills: list[str]
@@ -88,3 +96,23 @@ class OptimizedResumeResponse(BaseModel):
     summary: str
     projects: list[RewrittenProject]
     ats_score: dict
+
+
+class SkillPreviewResponse(BaseModel):
+    analysis: dict
+    skill_match: dict
+
+
+class ConfirmedSkillsRequest(BaseModel):
+    job_description: str = Field(
+        ...,
+        min_length=20,
+        description="Complete job description pasted by the user."
+    )
+    confirmed_skills: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Skills the candidate explicitly confirms knowing. "
+            "Do not include unconfirmed job requirements."
+        )
+    )

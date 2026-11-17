@@ -1,14 +1,15 @@
-import traceback
+import logging
 
 from fastapi import APIRouter, HTTPException
 
-from backend.ai.analyzer import analyze_job_description
+from backend.ai.analyzer import analyze_job_description, provider_status
 from backend.ai.matcher import match_skills
 from backend.ai.schemas import (
     JobDescriptionRequest,
     JobDescriptionResponse,
     SkillMatchRequest,
     SkillMatchResponse,
+    SkillPreviewResponse,
 )
 from backend.ai.schemas import (
     ProjectRankingRequest,
@@ -26,14 +27,19 @@ from backend.ai.project_ranker import rank_projects
 from backend.ai.summary_generator import generate_summary
 from backend.ai.project_rewriter import rewrite_projects
 from backend.ai.ats_score import calculate_ats_score
-from backend.ai.matcher import match_skills
-from backend.ai.project_ranker import rank_projects
 from backend.ai.resume_optimizer import optimize_resume
 
 router = APIRouter(
     prefix="/ai",
     tags=["AI"]
 )
+log = logging.getLogger(__name__)
+
+
+@router.get("/providers")
+def get_providers():
+    """Return provider availability without exposing API keys."""
+    return provider_status()
 
 
 @router.post(
@@ -49,9 +55,7 @@ def analyze_job(request: JobDescriptionRequest):
         return JobDescriptionResponse(**result)
 
     except Exception as e:
-        print("\n========== AI ERROR ==========")
-        traceback.print_exc()
-        print("==============================\n")
+        log.exception("Job description analysis failed")
 
         raise HTTPException(
             status_code=500,
@@ -97,8 +101,13 @@ def project_rank(request: ProjectRankingRequest):
 )
 def generate_ai_summary(request: SummaryRequest):
     try:
-        summary = generate_summary(
+        project_ranking = rank_projects(
             request.job_description
+        )
+
+        summary = generate_summary(
+            request.job_description,
+            project_ranking["top_projects"],
         )
 
         return SummaryResponse(
@@ -118,8 +127,13 @@ def generate_ai_summary(request: SummaryRequest):
 def rewrite_ai_projects(request: ProjectRewriteRequest):
     try:
 
-        projects = rewrite_projects(
+        project_ranking = rank_projects(
             request.job_description
+        )
+
+        projects = rewrite_projects(
+            request.job_description,
+            project_ranking["top_projects"],
         )
 
         return ProjectRewriteResponse(
@@ -144,7 +158,7 @@ def ats_score(request: ATSScoreRequest):
         )
 
         skill_match = match_skills(
-            analysis["skills"]
+            analysis
         )
 
         project_ranking = rank_projects(
@@ -165,6 +179,28 @@ def ats_score(request: ATSScoreRequest):
             status_code=500,
             detail=str(e)
         )
+@router.post(
+    "/skill-preview",
+    response_model=SkillPreviewResponse
+)
+def preview_resume_skills(request: JobDescriptionRequest):
+    try:
+        analysis = analyze_job_description(
+            request.job_description
+        )
+        skill_match = match_skills(analysis)
+        return SkillPreviewResponse(
+            analysis=analysis,
+            skill_match=skill_match,
+        )
+    except Exception as e:
+        log.exception("Resume skill preview failed")
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to preview resume skills."
+        )
+
+
 @router.post(
     "/optimize-resume",
     response_model=OptimizedResumeResponse

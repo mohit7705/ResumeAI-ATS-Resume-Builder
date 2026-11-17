@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://127.0.0.1:8000";
+const API = "";
 
 export const getContact = async () => {
   return (await axios.get(API + "/contact")).data;

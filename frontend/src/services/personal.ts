@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://127.0.0.1:8000";
+const API = "";
 
 export const getProfile = async () => {
     return (await axios.get(API + "/personal")).data;

@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
+import { Folder } from "lucide-react";
 
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+import Chip from "../../../components/ui/Chip";
+import EmptyState from "../../../components/ui/EmptyState";
+import { useApp } from "../../../context/AppContext";
 import { getProjects } from "../../../services/projects";
+import { toList } from "../../../utils/format";
 
 export default function RecentProjects() {
-
+  const { setPage } = useApp();
   const [projects, setProjects] = useState<any[]>([]);
 
   useEffect(() => {
@@ -11,42 +18,59 @@ export default function RecentProjects() {
   }, []);
 
   async function load() {
-    const data = await getProjects();
-    setProjects(data.slice(0, 3));
+    try {
+      const data = await getProjects();
+      setProjects(data.slice(0, 3));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
-    <div
-      style={{
-        background: "#111827",
-        padding: 20,
-        borderRadius: 12,
-        border: "1px solid #333",
-      }}
+    <Card
+      title="Recent projects"
+      action={
+        projects.length > 0 ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setPage("projects")}
+          >
+            View all
+          </Button>
+        ) : undefined
+      }
     >
-      <h2>Recent Projects</h2>
-
       {projects.length === 0 ? (
-        <p>No projects added.</p>
+        <EmptyState
+          icon={<Folder size={20} />}
+          title="No projects yet"
+          text="Projects are the strongest evidence on a fresher resume."
+          action={
+            <Button size="sm" onClick={() => setPage("projects")}>
+              Add a project
+            </Button>
+          }
+        />
       ) : (
-        <ul
-          style={{
-            paddingLeft: 20,
-            marginTop: 15,
-          }}
-        >
+        <ul className="recent">
           {projects.map((project, index) => (
-            <li
-              key={index}
-              style={{
-                marginBottom: 10,
-              }}
-            >
-              <strong>{project.title}</strong>
+            <li key={index}>
+              <span className="recent__title">{project.title}</span>
+
+              <span className="chips">
+                {toList(project.technologies)
+                  .slice(0, 2)
+                  .map((tech) => (
+                    <Chip key={tech} small>
+                      {tech}
+                    </Chip>
+                  ))}
+              </span>
             </li>
           ))}
         </ul>
       )}
-    </div>
+    </Card>
   );
 }

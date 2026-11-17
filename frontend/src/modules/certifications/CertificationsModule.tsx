@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
+import { Award, Calendar, ExternalLink, Plus } from "lucide-react";
 
 import Container from "../../components/ui/Container";
 import SectionHeader from "../../components/ui/SectionHeader";
 import Card from "../../components/ui/Card";
-import Label from "../../components/ui/Label";
+import Field from "../../components/ui/Field";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
+import Chip from "../../components/ui/Chip";
+import EmptyState from "../../components/ui/EmptyState";
+import DeleteButton from "../../components/ui/DeleteButton";
+
+import { useToast } from "../../context/ToastContext";
+import { formatDate } from "../../utils/format";
 
 import {
   getCertifications,
@@ -14,6 +21,7 @@ import {
 } from "../../services/certifications";
 
 export default function CertificationsModule() {
+  const toast = useToast();
 
   const empty = {
     title: "",
@@ -24,53 +32,74 @@ export default function CertificationsModule() {
 
   const [form, setForm] = useState(empty);
   const [items, setItems] = useState<any[]>([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     load();
   }, []);
 
   async function load() {
-    setItems(await getCertifications());
+    try {
+      setItems(await getCertifications());
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not load your certifications. Check that the backend is running.");
+    }
   }
 
   async function add() {
 
-  if (!form.title.trim()) {
-    alert("Certificate title is required.");
-    return;
+    if (!form.title.trim()) {
+      toast.error("Certificate title is required.");
+      return;
+    }
+
+    if (!form.issuer.trim()) {
+      toast.error("Certificate issuer is required.");
+      return;
+    }
+
+    if (!form.issue_date) {
+      toast.error("Issue date is required.");
+      return;
+    }
+
+    if (
+      form.credential_url &&
+      !/^https?:\/\/.+/.test(form.credential_url)
+    ) {
+      toast.error("Credential URL must be a valid URL.");
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      await addCertification(form);
+
+      setForm(empty);
+
+      load();
+
+      toast.success("Certification added.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not add this certification. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+
   }
-
-  if (!form.issuer.trim()) {
-    alert("Certificate issuer is required.");
-    return;
-  }
-
-  if (!form.issue_date) {
-    alert("Issue date is required.");
-    return;
-  }
-
-  if (
-    form.credential_url &&
-    !/^https?:\/\/.+/.test(form.credential_url)
-  ) {
-    alert("Credential URL must be a valid URL.");
-    return;
-  }
-
-  await addCertification(form);
-
-  setForm(empty);
-
-  load();
-
-  alert("Certification Added Successfully.");
-
- }
 
   async function remove(index: number) {
-    await deleteCertification(index);
-    load();
+    try {
+      await deleteCertification(index);
+      load();
+      toast.success("Certification removed.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not remove this certification. Please try again.");
+    }
   }
 
   return (
@@ -78,78 +107,110 @@ export default function CertificationsModule() {
 
       <SectionHeader
         title="Certifications"
-        subtitle="Manage Certifications"
+        subtitle="Courses and credentials that back up your skills."
       />
 
-      <Card title="Add Certification">
+      <Card
+        title="Add certification"
+        footer={
+          <Button
+            icon={<Plus size={16} />}
+            loading={saving}
+            onClick={add}
+          >
+            Add certification
+          </Button>
+        }
+      >
+        <div className="form-grid">
+          <Field label="Title" required>
+            <Input
+              value={form.title}
+              onChange={(e)=>
+                setForm({...form,title:e.target.value})
+              }
+            />
+          </Field>
 
-        <Label>Title</Label>
-        <Input
-          value={form.title}
-          onChange={(e)=>
-            setForm({...form,title:e.target.value})
-          }
-        />
+          <Field label="Issuer" required>
+            <Input
+              value={form.issuer}
+              onChange={(e)=>
+                setForm({...form,issuer:e.target.value})
+              }
+            />
+          </Field>
 
-        <Label>Issuer</Label>
-        <Input
-          value={form.issuer}
-          onChange={(e)=>
-            setForm({...form,issuer:e.target.value})
-          }
-        />
+          <Field label="Issue date" required>
+            <Input
+              type="date"
+              value={form.issue_date}
+              onChange={(e)=>
+                setForm({...form,issue_date:e.target.value})
+              }
+            />
+          </Field>
 
-        <Label>Issue Date</Label>
-        <Input
-          type="date"
-          value={form.issue_date}
-          onChange={(e)=>
-            setForm({...form,issue_date:e.target.value})
-          }
-        />
-
-        <Label>Credential URL</Label>
-        <Input
-          value={form.credential_url}
-          onChange={(e)=>
-            setForm({...form,credential_url:e.target.value})
-          }
-        />
-
-        <Button onClick={add}>
-          Add Certification
-        </Button>
-
+          <Field label="Credential URL" hint="Optional link to verify it">
+            <Input
+              type="url"
+              value={form.credential_url}
+              onChange={(e)=>
+                setForm({...form,credential_url:e.target.value})
+              }
+            />
+          </Field>
+        </div>
       </Card>
 
-      <Card title="Certification List">
+      <Card
+        title="Your certifications"
+        action={items.length > 0 ? <Chip>{items.length}</Chip> : undefined}
+      >
+        {items.length === 0 ? (
+          <EmptyState
+            icon={<Award size={20} />}
+            title="No certifications yet"
+            text="Add a course or credential above and it will appear on your resume."
+          />
+        ) : (
+          <div className="item-grid">
+            {items.map((item,index)=>(
+              <article className="item" key={index}>
+                <div className="item__top">
+                  <div>
+                    <h3 className="item__title">{item.title}</h3>
+                    <p className="item__sub">{item.issuer}</p>
+                  </div>
 
-        {items.map((item,index)=>(
+                  <DeleteButton onConfirm={()=>remove(index)} />
+                </div>
 
-          <div
-            key={index}
-            style={{
-              border:"1px solid #333",
-              padding:15,
-              marginBottom:15,
-              borderRadius:8
-            }}
-          >
-            <h3>{item.title}</h3>
+                <div className="item__meta">
+                  {item.issue_date && (
+                    <span>
+                      <Calendar size={14} />
+                      {formatDate(item.issue_date)}
+                    </span>
+                  )}
+                </div>
 
-            <p>{item.issuer}</p>
-
-            <Button
-              style={{background:"#dc2626"}}
-              onClick={()=>remove(index)}
-            >
-              Delete
-            </Button>
-
+                {item.credential_url && (
+                  <div className="item__links">
+                    <a
+                      href={item.credential_url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <ExternalLink size={14} />
+                      View credential
+                    </a>
+                  </div>
+                )}
+              </article>
+            ))}
           </div>
-
-        ))}
-
+        )}
       </Card>
 
     </Container>

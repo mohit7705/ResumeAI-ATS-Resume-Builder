@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
+import { Save } from "lucide-react";
 
 import Container from "../../components/ui/Container";
 import SectionHeader from "../../components/ui/SectionHeader";
 import Card from "../../components/ui/Card";
-import Label from "../../components/ui/Label";
+import Field from "../../components/ui/Field";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
+
+import { useToast } from "../../context/ToastContext";
 
 import {
   getContact,
@@ -13,20 +17,27 @@ import {
 } from "../../services/contact";
 
 export default function ContactModule() {
+  const toast = useToast();
   const [contact, setContact] = useState<any>({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     load();
   }, []);
 
   async function load() {
-    setContact(await getContact());
+    try {
+      setContact(await getContact());
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not load your contact details. Check that the backend is running.");
+    }
   }
 
   async function save() {
 
     if (!contact.email?.trim()) {
-      alert("Email is required.");
+      toast.error("Email is required.");
       return;
     }
 
@@ -34,19 +45,19 @@ export default function ContactModule() {
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(contact.email)) {
-      alert("Enter a valid email address.");
+      toast.error("Enter a valid email address.");
       return;
     }
 
     if (!contact.phone?.trim()) {
-      alert("Phone number is required.");
+      toast.error("Phone number is required.");
       return;
     }
 
     const phone = contact.phone.replace(/\D/g, "");
 
     if (phone.length !== 10) {
-      alert("Phone number must contain exactly 10 digits.");
+      toast.error("Phone number must contain exactly 10 digits.");
       return;
     }
 
@@ -54,7 +65,7 @@ export default function ContactModule() {
       contact.github &&
       !contact.github.startsWith("https://github.com/")
     ) {
-      alert("GitHub URL must start with https://github.com/");
+      toast.error("GitHub URL must start with https://github.com/");
       return;
     }
 
@@ -62,7 +73,7 @@ export default function ContactModule() {
       contact.linkedin &&
       !contact.linkedin.startsWith("https://www.linkedin.com/")
     ) {
-      alert("LinkedIn URL must start with https://www.linkedin.com/");
+      toast.error("LinkedIn URL must start with https://www.linkedin.com/");
       return;
     }
 
@@ -70,117 +81,121 @@ export default function ContactModule() {
       contact.portfolio &&
       !/^https?:\/\/.+/.test(contact.portfolio)
     ) {
-      alert("Portfolio must be a valid URL.");
+      toast.error("Portfolio must be a valid URL.");
       return;
     }
 
-    await saveContact(contact);
+    setSaving(true);
 
-    alert("Contact Saved Successfully.");
+    try {
+      await saveContact(contact);
+      toast.success("Contact details saved.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not save your contact details. Please try again.");
+    } finally {
+      setSaving(false);
+    }
 
+  }
+
+  function set(field: string) {
+    return (e: ChangeEvent<HTMLInputElement>) =>
+      setContact({
+        ...contact,
+        [field]: e.target.value,
+      });
   }
 
   return (
     <Container>
       <SectionHeader
         title="Contact"
-        subtitle="Contact Information"
+        subtitle="Recruiters use these details to reach you. They appear in your resume header."
       />
 
-      <Card title="Contact Details">
+      <Card
+        footer={
+          <Button
+            icon={<Save size={16} />}
+            loading={saving}
+            onClick={save}
+          >
+            Save contact
+          </Button>
+        }
+      >
+        <div className="form-section">
+          <h3 className="form-section__title">Reach you</h3>
 
-        <Label>Email</Label>
-        <Input
-          value={contact.email || ""}
-          onChange={(e) =>
-            setContact({
-              ...contact,
-              email: e.target.value,
-            })
-          }
-        />
+          <div className="form-grid">
+            <Field label="Email" required>
+              <Input
+                type="email"
+                autoComplete="email"
+                value={contact.email || ""}
+                onChange={set("email")}
+              />
+            </Field>
 
-        <Label>Phone</Label>
-        <Input
-          value={contact.phone || ""}
-          onChange={(e) =>
-            setContact({
-              ...contact,
-              phone: e.target.value,
-            })
-          }
-        />
+            <Field label="Phone" required hint="10 digits">
+              <Input
+                type="tel"
+                autoComplete="tel"
+                value={contact.phone || ""}
+                onChange={set("phone")}
+              />
+            </Field>
+          </div>
+        </div>
 
-        <Label>City</Label>
-        <Input
-          value={contact.city || ""}
-          onChange={(e) =>
-            setContact({
-              ...contact,
-              city: e.target.value,
-            })
-          }
-        />
+        <div className="form-section">
+          <h3 className="form-section__title">Location</h3>
 
-        <Label>State</Label>
-        <Input
-          value={contact.state || ""}
-          onChange={(e) =>
-            setContact({
-              ...contact,
-              state: e.target.value,
-            })
-          }
-        />
+          <div className="form-grid">
+            <Field label="City">
+              <Input value={contact.city || ""} onChange={set("city")} />
+            </Field>
 
-        <Label>Country</Label>
-        <Input
-          value={contact.country || ""}
-          onChange={(e) =>
-            setContact({
-              ...contact,
-              country: e.target.value,
-            })
-          }
-        />
+            <Field label="State">
+              <Input value={contact.state || ""} onChange={set("state")} />
+            </Field>
 
-        <Label>GitHub</Label>
-        <Input
-          value={contact.github || ""}
-          onChange={(e) =>
-            setContact({
-              ...contact,
-              github: e.target.value,
-            })
-          }
-        />
+            <Field label="Country">
+              <Input value={contact.country || ""} onChange={set("country")} />
+            </Field>
+          </div>
+        </div>
 
-        <Label>LinkedIn</Label>
-        <Input
-          value={contact.linkedin || ""}
-          onChange={(e) =>
-            setContact({
-              ...contact,
-              linkedin: e.target.value,
-            })
-          }
-        />
+        <div className="form-section">
+          <h3 className="form-section__title">Online profiles</h3>
 
-        <Label>Portfolio</Label>
-        <Input
-          value={contact.portfolio || ""}
-          onChange={(e) =>
-            setContact({
-              ...contact,
-              portfolio: e.target.value,
-            })
-          }
-        />
+          <div className="form-grid">
+            <Field label="GitHub" hint="Starts with https://github.com/">
+              <Input
+                type="url"
+                value={contact.github || ""}
+                onChange={set("github")}
+              />
+            </Field>
 
-        <Button onClick={save}>
-          Save Contact
-        </Button>
+            <Field label="LinkedIn" hint="Starts with https://www.linkedin.com/">
+              <Input
+                type="url"
+                value={contact.linkedin || ""}
+                onChange={set("linkedin")}
+              />
+            </Field>
 
+            <Field label="Portfolio" wide>
+              <Input
+                type="url"
+                value={contact.portfolio || ""}
+                onChange={set("portfolio")}
+              />
+            </Field>
+          </div>
+        </div>
       </Card>
     </Container>
   );

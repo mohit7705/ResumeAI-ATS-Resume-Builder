@@ -1,47 +1,52 @@
-import Button from "../../../components/ui/Button";
+import { Download, Eye, Sparkles } from "lucide-react";
+
+import { useApp } from "../../../context/AppContext";
 
 type Props = {
   title: string;
+  description: string;
   action: string;
 };
 
-export default function QuickAction({
-  title,
-  action,
-}: Props) {
+export default function QuickAction({ title, description, action }: Props) {
+  const { setPage } = useApp();
 
   function handleClick() {
 
     if (action === "generate") {
-      window.location.href = "/resume";
+      // Navigate inside the app (a full page load to /resume would reset it).
+      setPage("resume");
     }
 
     if (action === "preview") {
       window.open(
-        "http://127.0.0.1:8000/generated/html/resume.html",
+        "/generated/html/resume.html",
         "_blank"
       );
     }
 
     if (action === "download") {
       window.open(
-        "http://127.0.0.1:8000/generated/pdf/resume.pdf",
+        "/generated/pdf/resume.pdf",
         "_blank"
       );
     }
 
   }
 
+  const Icon =
+    action === "generate" ? Sparkles : action === "preview" ? Eye : Download;
 
   return (
-    <Button
-      onClick={handleClick}
-      style={{
-        width: "100%",
-        marginBottom: 10,
-      }}
-    >
-      {title}
-    </Button>
+    <button type="button" className="action" onClick={handleClick}>
+      <span className="action__icon">
+        <Icon size={18} />
+      </span>
+
+      <span>
+        <span className="action__title">{title}</span>
+        <span className="action__text">{description}</span>
+      </span>
+    </button>
   );
 }

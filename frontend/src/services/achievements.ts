@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://127.0.0.1:8000/achievements";
+const API = "/achievements";
 
 export const getAchievements = async () =>
   (await axios.get(API)).data;

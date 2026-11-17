@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://127.0.0.1:8000/experience";
+const API = "/experience";
 
 export const getExperience = async () =>
   (await axios.get(API)).data;

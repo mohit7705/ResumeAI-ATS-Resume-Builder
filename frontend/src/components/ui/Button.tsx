@@ -1,21 +1,44 @@
-type Props = React.ButtonHTMLAttributes<HTMLButtonElement>;
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { cn } from "../../utils/cn";
 
-export default function Button(props: Props) {
+type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
+  icon?: ReactNode;
+  iconOnly?: boolean;
+  block?: boolean;
+  loading?: boolean;
+};
+
+export default function Button({
+  variant = "primary",
+  size = "md",
+  icon,
+  iconOnly,
+  block,
+  loading,
+  className,
+  children,
+  disabled,
+  type = "button",
+  ...rest
+}: Props) {
   return (
     <button
-      {...props}
-      style={{
-        padding: "10px 18px",
-        border: "none",
-        borderRadius: 8,
-        cursor: "pointer",
-        background: "#2563eb",
-        color: "#fff",
-        fontWeight: 600,
-        ...props.style,
-      }}
+      {...rest}
+      type={type}
+      disabled={disabled || loading}
+      className={cn(
+        "btn",
+        `btn--${variant}`,
+        size !== "md" && `btn--${size}`,
+        iconOnly && "btn--icon",
+        block && "btn--block",
+        className
+      )}
     >
-      {props.children}
+      {loading ? <span className="spinner" aria-hidden="true" /> : icon}
+      {children}
     </button>
   );
 }

@@ -16,7 +16,7 @@ export default function Content() {
   const { page } = useApp();
 
   return (
-    <div style={{ padding: 25 }}>
+    <>
       {page === "dashboard" && <DashboardModule />}
       {page === "profile" && <PersonalModule />}
       {page === "contact" && <ContactModule />}
@@ -28,6 +28,6 @@ export default function Content() {
       {page === "certifications" && <CertificationsModule />}
       {page === "achievements" && <AchievementsModule />}
       {page === "resume" && <ResumeModule />}
-    </div>
+    </>
   );
 }

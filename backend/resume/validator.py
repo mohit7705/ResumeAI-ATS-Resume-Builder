@@ -6,18 +6,19 @@ REQUIRED_HEADER = [
 ]
 
 
-def validate_resume(resume):
-
-    missing = []
-
-    header = resume.header
-
-    for field in REQUIRED_HEADER:
-
-        if not header.get(field):
-            missing.append(field)
-
+def validate_resume(resume, source_experience=None):
+    """Check the header and that Experience is exactly what was saved."""
+    missing = [
+        field for field in REQUIRED_HEADER
+        if not resume.header.get(field)
+    ]
+    experience_unchanged = (
+        True
+        if source_experience is None
+        else resume.experience == source_experience
+    )
     return {
-        "valid": len(missing) == 0,
+        "valid": len(missing) == 0 and experience_unchanged,
         "missing": missing,
+        "experience_unchanged": experience_unchanged,
     }

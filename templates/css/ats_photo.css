@@ -1,0 +1,262 @@
+
+@page {
+    size: A4;
+    margin: 9mm;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #111;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.container {
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Compact professional header */
+.header-with-photo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 9px;
+}
+
+.header-content {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 27px;
+    line-height: 1.2;
+    color: #14213d;
+    overflow-wrap: anywhere;
+}
+
+.title {
+    margin-top: 3px;
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.contact,
+.links {
+    margin-top: 5px;
+    font-size: 10.5px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+/* Larger professional portrait on the right */
+.profile-photo {
+    width: 90px;
+    height: 110px;
+    flex: 0 0 90px;
+    overflow: hidden;
+    border-radius: 3px;
+    border: 1px solid #e1e5eb;
+}
+
+.profile-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+a,
+.project a {
+    color: #000 !important;
+    text-decoration: none !important;
+    font-weight: 600;
+}
+
+/* Compact sections */
+.section {
+    margin-top: 12px;
+}
+
+h2 {
+    margin: 0 0 5px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid #14213d;
+    color: #14213d;
+    font-size: 15px;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+p {
+    margin: 3px 0;
+    line-height: 1.35;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    column-gap: 8px;
+    row-gap: 3px;
+}
+
+.skill-label {
+    font-weight: 700;
+}
+
+.skill-value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Project details */
+.project {
+    margin-bottom: 10px;
+}
+
+.project-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 3px;
+}
+
+.project-name {
+    flex: 1;
+    min-width: 0;
+}
+
+.project-title {
+    font-weight: 700;
+}
+
+.project-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.project-link,
+.header-link,
+.contact-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.project-icon,
+.header-icon,
+.contact-icon {
+    width: 10px;
+    height: 10px;
+    fill: #000;
+    flex-shrink: 0;
+}
+
+.project-separator,
+.separator,
+.contact-separator {
+    margin: 0 3px;
+}
+
+ul {
+    margin: 3px 0 0;
+    padding-left: 16px;
+}
+
+li {
+    margin-bottom: 3px;
+    line-height: 1.4;
+}
+
+/* Print and PDF layout */
+@media print {
+    html,
+    body {
+        width: auto;
+        min-height: 0;
+        background: #fff;
+    }
+
+    .container {
+        width: 100%;
+    }
+
+    a {
+        color: #000 !important;
+        text-decoration: none !important;
+    }
+
+    .header-with-photo,
+    .project,
+    .experience {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .section h2 {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    .profile-photo {
+        width: 90px;
+        height: 110px;
+        flex: 0 0 90px;
+    }
+}
+
+/* =========================================================
+   ONE-PAGE COMPACT OVERRIDES (Step 1)
+   ========================================================= */
+
+body { font-size: 11px; line-height: 1.3; }
+.header { margin-bottom: 8px; }
+.header h1 { font-size: 24px; }
+.title { font-size: 11.5px; margin-top: 2px; }
+.contact, .links { font-size: 10.5px; margin-top: 3px; line-height: 1.3; }
+.section, .skills-section { margin-top: 8px; }
+h2 { font-size: 12px; margin: 0 0 4px 0; padding: 0 0 2px 0; }
+h3 { font-size: 11.5px; margin: 3px 0 2px; }
+p { margin: 2px 0; line-height: 1.3; }
+ul { margin: 2px 0 0 0; padding-left: 15px; }
+li { margin-bottom: 1px; line-height: 1.3; }
+.skills-grid { grid-template-columns: 120px minmax(0, 1fr); row-gap: 2px; }
+.skill-label, .skill-value { line-height: 1.3; }
+.project { margin-bottom: 6px; }
+.project-header { font-size: 11.5px; margin-bottom: 2px; }
+.project p { margin: 2px 0 3px; line-height: 1.3; }
+.experience { margin-bottom: 5px; }
+.education { margin-bottom: 4px; }
+.certification, .achievement { margin-bottom: 3px; }
+.experience .row { display: flex; justify-content: space-between; gap: 8px; }
+.experience .dates { white-space: nowrap; font-weight: 600; }
+.section, .project, .experience { break-inside: avoid; page-break-inside: avoid; }
+/* ===== STEP 4: bold headings, project look, education ===== */
+h2 { font-size: 13px; font-weight: 800; letter-spacing: .6px; color: #14213D;
+     border-bottom: 1.6px solid #14213D; }
+.row strong, .skill-label, .project-title, .education strong, .cert strong {
+    font-weight: 800;
+}
+.project-title { font-size: 12.5px; color: #14213D; }
+.project .tech { font-style: italic; margin: 1px 0 2px; }
+.project .tech b { font-style: normal; font-weight: 800; }
+.project { margin-bottom: 7px; }
+.cgpa { font-weight: 400; }
+.cert { margin-bottom: 2px; }

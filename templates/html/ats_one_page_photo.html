@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        {{ header.first_name }} {{ header.last_name }}
+    </title>
+
+    <link rel="stylesheet" href="../css/ats_photo.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- ========================================================= -->
+<!-- HEADER -->
+<!-- ========================================================= -->
+
+<div class="header header-with-photo">
+    <div class="header-content">
+    <h1>{{ header.first_name }} {{ header.last_name }}</h1>
+    {% if header.professional_title %}
+    <div class="title">{{ header.professional_title }}</div>
+    {% endif %}
+    <div class="contact">
+        {{ header.city }}, {{ header.state }} | {{ header.phone }} | {{ header.email }}
+    </div>
+    <div class="links">
+        {% if header.github %}
+        <strong>GitHub:</strong> <a href="{{ header.github }}">{{ header.github | replace("https://", "") | replace("http://", "") }}</a>
+        {% endif %}
+        {% if header.github and (header.linkedin or header.portfolio) %} | {% endif %}
+        {% if header.linkedin %}
+        <strong>LinkedIn:</strong> <a href="{{ header.linkedin }}">{{ header.linkedin | replace("https://", "") | replace("http://", "") }}</a>
+        {% endif %}
+        {% if header.linkedin and header.portfolio %} | {% endif %}
+        {% if header.portfolio %}
+        <strong>Portfolio:</strong> <a href="{{ header.portfolio }}">{{ header.portfolio | replace("https://", "") | replace("http://", "") }}</a>
+        {% endif %}
+    </div>
+</div>
+    <div class="profile-photo">
+        <img src="{{ header.photo }}" alt="Profile photo">
+    </div>
+</div>
+
+
+<!-- ========================================================= -->
+<!-- SUMMARY -->
+<!-- ========================================================= -->
+
+{% if summary and summary.content %}
+
+<div class="section">
+
+    <h2>Summary</h2>
+
+    <p>
+        {{ summary.content }}
+    </p>
+
+</div>
+
+{% endif %}
+
+
+<!-- ========================================================= -->
+<!-- EXPERIENCE -->
+<!-- ========================================================= -->
+
+{% set has_experience = namespace(value=false) %}
+{% for exp in experience %}
+    {% if exp.position or exp.role or exp.company %}{% set has_experience.value = true %}{% endif %}
+{% endfor %}
+
+{% if has_experience.value %}
+<div class="section" data-section="experience">
+
+    <h2>Experience</h2>
+
+    {% for exp in experience %}
+    {% if exp.position or exp.role or exp.company %}
+    <div class="experience">
+
+        <div class="row">
+            <span><strong>{{ exp.position or exp.role }}</strong>{% if exp.company %} | {{ exp.company }}{% endif %}{% if exp.location %}, {{ exp.location }}{% endif %}</span>
+            <span class="dates">{{ exp.start_date | month_year }} - {{ (exp.end_date | month_year) or "Present" }}</span>
+        </div>
+
+        {% set points = exp.highlights if exp.highlights else (exp.responsibilities.split("\n") if exp.responsibilities else []) %}
+        {% if points %}
+        <ul>
+            {% for point in points %}{% if point and point.strip() %}
+            <li{% if loop.index > 4 %} class="extra" data-extra="1" hidden{% endif %}>{{ point.strip() }}</li>
+            {% endif %}{% endfor %}
+        </ul>
+        {% endif %}
+
+    </div>
+    {% endif %}
+    {% endfor %}
+
+</div>
+{% endif %}
+
+
+<!-- ========================================================= -->
+<!-- TECHNICAL SKILLS -->
+<!-- ========================================================= -->
+
+{% if skills %}
+
+<div class="section skills-section">
+
+    <h2>Technical Skills</h2>
+
+    <div class="skills-grid">
+
+        {% if skills.languages %}
+        <div class="skill-label">Languages:</div>
+        <div class="skill-value">
+            {{ skills.languages | join(", ") }}
+        </div>
+        {% endif %}
+
+        {% if skills.ai_ml %}
+        <div class="skill-label">AI/ML:</div>
+        <div class="skill-value">
+            {{ skills.ai_ml | join(", ") }}
+        </div>
+        {% endif %}
+
+        {% if skills.databases %}
+        <div class="skill-label">Databases:</div>
+        <div class="skill-value">
+            {{ skills.databases | join(", ") }}
+        </div>
+        {% endif %}
+
+        {% if skills.cs_fundamentals %}
+        <div class="skill-label">CS Fundamentals:</div>
+        <div class="skill-value">
+            {{ skills.cs_fundamentals | join(", ") }}
+        </div>
+        {% endif %}
+
+        {% if skills.tools %}
+        <div class="skill-label">Tools:</div>
+        <div class="skill-value">
+            {{ skills.tools | join(", ") }}
+        </div>
+        {% endif %}
+
+        {% if skills.cloud %}
+        <div class="skill-label">Cloud:</div>
+        <div class="skill-value">
+            {{ skills.cloud | join(", ") }}
+        </div>
+        {% endif %}
+
+        {% if skills.soft_skills %}
+        <div class="skill-label">Soft Skills:</div>
+        <div class="skill-value">
+            {{ skills.soft_skills | join(", ") }}
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<!-- ========================================================= -->
+<!-- PROJECTS -->
+<!-- ========================================================= -->
+
+{% if projects %}
+
+<div class="section">
+
+    <h2>Projects</h2>
+
+
+    {% for project in projects %}
+
+    <div class="project"{% if loop.index > 3 %} data-extra="1" hidden{% endif %}>
+
+
+        {% if project.title or project.github or project.live_demo %}
+
+        <div class="project-header">
+
+            <div class="project-name">
+
+                {% if project.title %}
+                <span class="project-title">
+                    {{ project.title }}
+                </span>
+                {% endif %}
+
+            </div>
+
+            <div class="project-links">
+
+                {% if project.github %}
+
+                <a href="{{ project.github }}" class="project-link">
+
+                    <svg class="project-icon"
+                         viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12c0
+                            4.42 2.87 8.17 6.84 9.49.5.09
+                            .66-.22.66-.49 0-.24-.01-.87-.01-1.7
+                            -2.78.6-3.37-1.34-3.37-1.34-.45-1.16
+                            -1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61
+                            1 .07 1.53 1.03 1.53 1.03.9 1.53 2.34
+                            1.09 2.91.83.09-.65.35-1.09.63-1.34
+                            -2.22-.25-4.55-1.11-4.55-4.94
+                            0-1.09.39-1.98 1.03-2.68-.1-.25
+                            -.45-1.27.1-2.65 0 0 .84-.27 2.75
+                            1.02A9.56 9.56 0 0 1 12 6.84c.85 0
+                            1.71.11 2.51.33 1.91-1.29 2.75-1.02
+                            2.75-1.02.55 1.38.2 2.4.1 2.65
+                            .64.7 1.03 1.59 1.03 2.68
+                            0 3.84-2.34 4.69-4.57 4.94
+                            .36.31.68.92.68 1.85 0 1.34-.01
+                            2.42-.01 2.75 0 .27.18.59.67.49
+                            A10.01 10.01 0 0 0 22 12
+                            C22 6.48 17.52 2 12 2z">
+                        </path>
+
+                    </svg>
+
+                    GitHub
+
+                </a>
+
+                {% endif %}
+
+                {% if project.github and project.live_demo and project.live_demo != project.github %}
+                <span class="project-separator">|</span>
+                {% endif %}
+
+                {% if project.live_demo and project.live_demo != project.github %}
+
+                <a href="{{ project.live_demo }}" class="project-link">
+
+                    <svg class="project-icon"
+                         viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <path
+                            d="M14 3v2h3.59L7.76 14.83l1.41
+                            1.41L19 6.41V10h2V3h-7z
+                            M19 19H5V5h7V3H5c-1.1 0-2
+                            .9-2 2v14c0 1.1.9 2 2 2h14
+                            c1.1 0 2-.9 2-2v-7h-2v7z">
+                        </path>
+
+                    </svg>
+
+                    Live Demo
+
+                </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        {% if project.technologies %}
+
+        <p class="tech">
+            <b>Tech:</b>
+            {{ (project.display_technologies or project.technologies[:5]) | join(", ") }}
+        </p>
+
+        {% endif %}
+
+
+        {% if project.highlights %}
+
+        <ul>
+
+            {% for point in project.highlights %}
+
+            <li{% if loop.index > 2 %} class="extra" data-extra="1" hidden{% endif %}>{{ point }}</li>
+
+            {% endfor %}
+
+        </ul>
+
+        {% endif %}
+
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+
+<!-- ========================================================= -->
+<!-- EDUCATION -->
+<!-- ========================================================= -->
+
+{% if education %}
+<div class="section" data-section="education">
+
+    <h2>Education</h2>
+
+    {% for edu in education %}
+    <div class="education">
+
+        <div class="row">
+            <span><strong>{{ edu.degree }}{% if edu.specialization %} ({{ edu.specialization }}){% endif %}</strong></span>
+            {% if edu.start_date or edu.end_date %}
+            <span class="dates">{{ edu.start_date }}{% if edu.start_date and edu.end_date %} - {% endif %}{{ edu.end_date }}</span>
+            {% endif %}
+        </div>
+
+        <div class="row">
+            <span>{{ edu.college }}{% if edu.location %}, {{ edu.location }}{% endif %}{% if edu.university %} | {{ edu.university }}{% endif %}</span>
+            {% if edu.cgpa %}<span class="dates">CGPA: {{ edu.cgpa }}</span>{% endif %}
+        </div>
+
+    </div>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+<!-- ========================================================= -->
+<!-- CERTIFICATIONS -->
+<!-- ========================================================= -->
+
+{% if certifications %}
+<div class="section" data-section="certifications">
+
+    <h2>Certifications</h2>
+
+    {% for cert in certifications %}
+    <div class="row cert">
+        <span><strong>{{ cert.title }}</strong>{% if cert.issuer %} - {{ cert.issuer | trim }}{% endif %}</span>
+        {% if cert.issue_date %}<span class="dates">{{ cert.issue_date[:7] | month_year }}</span>{% endif %}
+    </div>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+</div>
+
+</body>
+
+</html>

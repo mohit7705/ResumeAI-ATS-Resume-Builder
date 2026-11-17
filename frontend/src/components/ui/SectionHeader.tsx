@@ -1,35 +1,20 @@
+import type { ReactNode } from "react";
+
 type Props = {
   title: string;
   subtitle?: string;
+  action?: ReactNode;
 };
 
-export default function SectionHeader({
-  title,
-  subtitle,
-}: Props) {
+export default function SectionHeader({ title, subtitle, action }: Props) {
   return (
-    <div
-      style={{
-        marginBottom: 25,
-      }}
-    >
-      <h1
-        style={{
-          marginBottom: 5,
-        }}
-      >
-        {title}
-      </h1>
+    <div className="page-head">
+      <div>
+        <h1 className="page-title">{title}</h1>
+        {subtitle && <p className="page-sub">{subtitle}</p>}
+      </div>
 
-      {subtitle && (
-        <p
-          style={{
-            color: "#9ca3af",
-          }}
-        >
-          {subtitle}
-        </p>
-      )}
+      {action}
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import copy
+
 from backend.models.resume_object import ResumeObject
 
 
@@ -21,16 +23,15 @@ def build_resume(
 
         skills=skills,
 
-        projects=projects,
+        projects=(projects or [])[:3],
 
         education=personal.get(
             "education",
             []
         ),
 
-        experience=personal.get(
-            "experience",
-            []
+        experience=copy.deepcopy(
+            personal.get("experience", [])
         ),
 
         certifications=personal.get(

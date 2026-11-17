@@ -1,31 +1,96 @@
+import { useEffect, useRef, useState } from "react";
+
 type Props = {
   html?: string;
+  version?: number;
 };
 
-export default function ResumePreview({ html }: Props) {
+const API_BASE_URL = "";
+
+export default function ResumePreview({ html, version = 0 }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (!container) return;
+
+    const updateScale = () => {
+      const availableWidth = container.clientWidth;
+      const a4Width = 794;
+
+      setScale(Math.min(availableWidth / a4Width, 1));
+    };
+
+    updateScale();
+
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(container);
+    window.addEventListener("resize", updateScale);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateScale);
+    };
+  }, []);
+
   if (!html) return null;
 
-  const path = html.replace(/\\/g, "/");
+  const normalizedPath = html.replace(/\\/g, "/");
+  const filename = normalizedPath.split("/").pop();
+
+  if (
+    filename !== "resume.html" &&
+    filename !== "resume_photo.html"
+  ) {
+    return <p className="muted">Invalid resume preview path.</p>;
+  }
+
+  const previewUrl =
+    `${API_BASE_URL}/generated/html/${filename}?t=${encodeURIComponent(
+      normalizedPath
+    )}&v=${version}`;
 
   return (
-    <div
-      style={{
-        marginTop: 30,
-      }}
-    >
-      <h2>Live Resume Preview</h2>
-
-      <iframe
-        title="Resume Preview"
-        src={`http://127.0.0.1:8000/generated/html/resume.html?${Date.now()}&path=${encodeURIComponent(path)}`}
-        width="100%"
-        height="900"
+    <div className="paper">
+      <div
+        ref={containerRef}
         style={{
-          border: "1px solid #444",
-          borderRadius: 10,
-          background: "#fff",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          overflow: "hidden",
         }}
-      />
+      >
+        <div
+          style={{
+            width: 794,
+            height: 1123,
+            transform: `scale(${scale})`,
+            transformOrigin: "top center",
+            flexShrink: 0,
+            marginBottom:
+              scale < 1 ? -(1123 * (1 - scale)) : 0,
+          }}
+        >
+          <iframe
+            title={`Resume Preview - ${filename}`}
+            src={previewUrl}
+            width={794}
+            height={1123}
+            style={{
+              display: "block",
+              width: 794,
+              height: 1123,
+              border: "1px solid var(--line-strong)",
+              borderRadius: 6,
+              background: "#fff",
+              boxShadow: "var(--shadow-md)",
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 }
