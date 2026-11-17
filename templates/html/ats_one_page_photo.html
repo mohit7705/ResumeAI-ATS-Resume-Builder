@@ -26,19 +26,19 @@
     <div class="title">{{ header.professional_title }}</div>
     {% endif %}
     <div class="contact">
-        {{ header.city }}, {{ header.state }} | {{ header.phone }} | {{ header.email }}
+        {{ header.city }}, {{ header.state }} | {% if header.phone and not header.phone.startswith("+") %}+91 {% endif %}{{ header.phone }} | {{ header.email }}
     </div>
     <div class="links">
         {% if header.github %}
-        <strong>GitHub:</strong> <a href="{{ header.github }}">{{ header.github | replace("https://", "") | replace("http://", "") }}</a>
+        <strong>GitHub:</strong> <a href="{{ header.github }}">{{ header.github | replace("https://", "") | replace("http://", "") | replace("www.", "") | trim("/") }}</a>
         {% endif %}
         {% if header.github and (header.linkedin or header.portfolio) %} | {% endif %}
         {% if header.linkedin %}
-        <strong>LinkedIn:</strong> <a href="{{ header.linkedin }}">{{ header.linkedin | replace("https://", "") | replace("http://", "") }}</a>
+        <strong>LinkedIn:</strong> <a href="{{ header.linkedin }}">{{ header.linkedin | replace("https://", "") | replace("http://", "") | replace("www.", "") | trim("/") }}</a>
         {% endif %}
         {% if header.linkedin and header.portfolio %} | {% endif %}
         {% if header.portfolio %}
-        <strong>Portfolio:</strong> <a href="{{ header.portfolio }}">{{ header.portfolio | replace("https://", "") | replace("http://", "") }}</a>
+        <strong>Portfolio:</strong> <a href="{{ header.portfolio }}">{{ header.portfolio | replace("https://", "") | replace("http://", "") | replace("www.", "") | trim("/") }}</a>
         {% endif %}
     </div>
 </div>

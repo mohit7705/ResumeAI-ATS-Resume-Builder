@@ -47,3 +47,9 @@ export const generateResumeFromTitle = async (
 
   return res.data;
 };
+
+export const generateDefaultResume = async (provider?: Provider) => {
+  const res = await axios.post(`${API}/generate/default`, { provider });
+
+  return res.data;
+};

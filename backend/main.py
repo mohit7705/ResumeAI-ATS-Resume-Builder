@@ -15,12 +15,17 @@ from backend.api.experience import router as experience_router
 from backend.api.personal import router as personal_router
 from backend.api.summary import router as summary_router
 from backend.api.projects import router as projects_router
-from backend.api.schemas import ConfirmedResumeRequest, TitleResumeRequest
+from backend.api.schemas import (
+    ConfirmedResumeRequest,
+    DefaultResumeRequest,
+    TitleResumeRequest,
+)
 from backend.api.skills import router as skills_router
 from backend.ai.title_profile import (
     build_job_description_from_title,
     clean_title,
 )
+from backend.ai.default_profile import build_default_job_description
 from backend.resume.engine import generate_resume
 from backend.resume.highlighter import collect_keywords
 from backend.generator.html_generator import generate_html
@@ -236,4 +241,31 @@ def generate_from_title(request: TitleResumeRequest):
         raise HTTPException(
             status_code=500,
             detail="Unable to build a job profile for this title.",
+        ) from e
+
+
+@app.post("/generate/default")
+def generate_default(request: DefaultResumeRequest):
+    """General-purpose resume: no job description or title needed."""
+    try:
+        with use_provider(request.provider):
+            job_description, title = build_default_job_description()
+
+            return run_resume_pipeline(
+                job_description,
+                confirmed_skills=[],
+                highlight=False,
+                target_title=title,
+                extra={"default_resume": True, "target_title": title},
+                include_photo=request.include_photo,
+            )
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except Exception as e:
+        logging.getLogger(__name__).exception("Default resume failed")
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to generate the default resume. Check backend logs.",
         ) from e

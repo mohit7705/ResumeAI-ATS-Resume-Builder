@@ -260,3 +260,20 @@ h2 { font-size: 13px; font-weight: 800; letter-spacing: .6px; color: #14213D;
 .project { margin-bottom: 7px; }
 .cgpa { font-weight: 400; }
 .cert { margin-bottom: 2px; }
+
+/* ===== PROFESSIONAL POLISH ===== */
+/* Dates / CGPA / certificate dates always sit on the right edge */
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+.row .dates {
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-weight: 600;
+    text-align: right;
+}
+.links { font-size: 10px; }
+.skill-label { white-space: nowrap; }

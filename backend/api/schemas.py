@@ -16,6 +16,12 @@ class ConfirmedResumeRequest(JobDescriptionRequest):
     provider: Literal["gemini", "meta"] | None = None
 
 
+class DefaultResumeRequest(BaseModel):
+    include_photo: bool = True
+    # AI provider for this one request. None = use LLM_PROVIDER from .env.
+    provider: Literal["gemini", "meta"] | None = None
+
+
 class TitleResumeRequest(BaseModel):
     title: str = Field(..., min_length=2, max_length=80)
     level: Literal["Fresher", "Junior"] = "Fresher"

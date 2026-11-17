@@ -159,6 +159,22 @@ def unique_skills(skills):
     return result
 
 
+DEFAULT_CLOUD = ("AWS", "Microsoft Azure", "Google Cloud Platform")
+
+
+def with_default_cloud(skills: dict) -> dict:
+    """Ensure the resume includes the candidate's confirmed cloud platforms."""
+    skills = dict(skills or {})
+    cloud = list(skills.get("cloud", []))
+    known = {normalize_skill(skill) for skill in cloud}
+    cloud += [
+        skill for skill in DEFAULT_CLOUD
+        if normalize_skill(skill) not in known
+    ]
+    skills["cloud"] = cloud
+    return skills
+
+
 def is_skill_relevant(skill: str, job_requirements: dict) -> bool:
     """Check whether a skill is explicitly or contextually relevant to a job."""
     skill_key = normalize_skill(skill)
@@ -297,12 +313,14 @@ def build_resume_skills(
         + list(additional_resume_skills or [])
         + list(matching_cs_fundamentals or [])
     )
-    return select_skills(
-        pool=pool,
-        projects=projects,
-        job=job_requirements or {},
-        matched=matched,
-        confirmed=confirmed_skills or [],
+    return with_default_cloud(
+        select_skills(
+            pool=pool,
+            projects=projects,
+            job=job_requirements or {},
+            matched=matched,
+            confirmed=confirmed_skills or [],
+        )
     )
 
 

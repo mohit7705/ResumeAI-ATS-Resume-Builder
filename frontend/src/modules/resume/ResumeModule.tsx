@@ -8,10 +8,12 @@ import {
   Info,
   Pencil,
   Sparkles,
+  Star,
   Type,
 } from "lucide-react";
 
 import {
+  generateDefaultResume,
   generateResume,
   generateResumeFromTitle,
   getProviders,
@@ -56,7 +58,7 @@ export default function ResumeModule() {
   const [jobDescription, setJobDescription] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"jd" | "title">("jd");
+  const [mode, setMode] = useState<"jd" | "title" | "default">("jd");
   const [title, setTitle] = useState("");
   const [level, setLevel] = useState<ResumeLevel>("Fresher");
   const [highlight, setHighlight] = useState(true);
@@ -110,7 +112,9 @@ export default function ResumeModule() {
 
     try {
       const data =
-        mode === "title"
+        mode === "default"
+          ? await generateDefaultResume(provider)
+          : mode === "title"
           ? await generateResumeFromTitle(title.trim(), level, highlight, provider)
           : await generateResume(jobDescription, highlight, provider);
       setResult(data);
@@ -166,11 +170,17 @@ export default function ResumeModule() {
     <Container>
       <SectionHeader
         title="Resume generator"
-        subtitle="Paste a job description or pick a role. We match your skills and projects to it."
+        subtitle="Paste a job description, pick a role, or generate a default resume for general use."
       />
 
       <Card
-        title={mode === "jd" ? "Job description" : "Job title"}
+        title={
+          mode === "jd"
+            ? "Job description"
+            : mode === "title"
+            ? "Job title"
+            : "Default resume"
+        }
         action={
           <div className="segmented" role="tablist" aria-label="Input type">
             <button
@@ -192,11 +202,22 @@ export default function ResumeModule() {
               <Type size={16} />
               Enter job title
             </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === "default"}
+              onClick={() => setMode("default")}
+            >
+              <Star size={16} />
+              Default resume
+            </button>
           </div>
         }
         footer={
           <>
             <Toggle
+              disabled={mode === "default"}
               checked={highlight}
               onChange={(e) => setHighlight(e.target.checked)}
             >
@@ -241,7 +262,19 @@ export default function ResumeModule() {
           </>
         }
       >
-        {mode === "jd" ? (
+        {mode === "default" ? (
+          <div className="stack">
+            <p className="prose">
+              A general-purpose resume you can use anywhere, with no edits.
+              It is not tailored to any job. It uses your profile summary,
+              your strongest technical skills, your experience and your top
+              3 projects.
+            </p>
+            <p className="muted">
+              Nothing to fill in. Click the generate button below.
+            </p>
+          </div>
+        ) : mode === "jd" ? (
           <Field label="Job description" hint="Paste the full posting for the best match.">
             <TextArea
               rows={10}

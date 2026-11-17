@@ -20,6 +20,9 @@ DEFAULT_SKILLS = (
     "Problem Solving", "Critical Thinking",
 )
 
+# Cloud platforms always shown on the resume (candidate confirmed these).
+DEFAULT_CLOUD = ("AWS", "Microsoft Azure", "Google Cloud Platform")
+
 CATEGORY_ORDER = (
     "languages",
     "ai_ml",
@@ -157,6 +160,16 @@ def select_skills(
     text, terms = _job_text(job)
     categories = needed_categories(job, text)
     default_keys = {norm(skill) for skill in DEFAULT_SKILLS}
+    default_keys.update(norm(skill) for skill in DEFAULT_CLOUD)
+
+    # Always offer the default cloud platforms, even if they are missing
+    # from (or disabled in) the saved skills data.
+    pool = dict(pool)
+    cloud = list(pool.get("cloud", []))
+    known = {norm(skill) for skill in cloud}
+    cloud += [skill for skill in DEFAULT_CLOUD if norm(skill) not in known]
+    pool["cloud"] = cloud
+
     matched_keys = {
         norm(skill) for skill in (matched or []) if isinstance(skill, str)
     }
