@@ -1,0 +1,13 @@
+frontend
+node_modules
+tests
+generated
+data
+assets
+.env
+.venv
+venv
+**/__pycache__
+**/*.pyc
+**/*.zip
+generates and all.zip

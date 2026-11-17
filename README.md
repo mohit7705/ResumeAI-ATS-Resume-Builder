@@ -39,13 +39,14 @@ Paste a job description (or just a job title) and ResumeAI selects your best ski
 ## Features
 
 - **Two ways to generate** – paste a full job description, or enter only a job title and experience level (Fresher / Junior) and let the AI build the job profile.
+- **Agentic self-reflection & RAG** – a LangGraph workflow retrieves relevant saved project evidence through ChromaDB and retries weak drafts; deterministic keyword guardrails reject banned buzzwords and job technologies unsupported by project records.
 - **Smart tailoring** – picks the most relevant skills and ranks your projects against the job, then rewrites summary and project bullets for the role.
 - **ATS scoring** – overall ATS score with skill and project sub-scores, skill match, and skill-gap recommendations.
 - **Recruiter check & validation** – flags weak or missing content before you send the resume.
 - **Keyword highlighting** – optionally bolds job keywords that actually appear in your resume.
 - **One-page guarantee** – content is auto-fitted to a single page; you get a clear error if it can't fit.
 - **Photo and no-photo versions** – generates both `resume.pdf` and `resume_photo.pdf`.
-- **Multiple AI providers** – Gemini or Meta, selectable per request, with optional fallback.
+- **Multiple AI providers** – Gemini or Meta, selectable per request, with optional fallback and per-node latency telemetry in the backend pipeline.
 - **Profile manager UI** – dashboard with modules for Personal, Contact, Summary, Skills, Experience, Education, Projects, Certifications and Achievements.
 - **One-command deployment** – fully containerised with Docker Compose.
 
@@ -57,7 +58,11 @@ flowchart LR
     N -->|/generate /skills /projects ... /generated| B[FastAPI backend]
     B --> D[(data/ JSON files)]
     B --> T[Jinja2 templates]
-    B --> L[Gemini / Meta API]
+    B --> L[LangGraph resume workflow]
+    D --> R[ChromaDB project evidence index]
+    L -->|retrieve evidence| R
+    R -->|relevant project evidence| L
+    L --> M[Gemini / Meta API]
     B --> P[Playwright + Chromium]
     P --> G[(generated/ HTML + PDF)]
 ```
@@ -84,15 +89,15 @@ The frontend container serves the UI and reverse-proxies API calls to the backen
 ### Steps
 ```bash
 # 1. Clone
-git clone <your-repo-url> ResumeAI
+git clone https://github.com/mohit7705/ResumeAI-ATS-Resume-Builder.git ResumeAI
 cd ResumeAI
 
 # 2. Configure
 cp .env.example .env
 #    open .env and set GOOGLE_API_KEY
 
-# 3. Add your profile photo (exactly ONE .jpg or .png)
-cp /path/to/photo.jpg assets/
+# 3. Add one profile photo (.jpg or .png)
+mkdir -p assets && cp /path/to/photo.jpg assets/
 
 # 4. Build and run
 docker compose up --build
@@ -113,7 +118,7 @@ All settings live in `.env` (copy from `.env.example`).
 | `LLM_PROVIDER` | No | Default provider: `gemini` or `meta` | `gemini` |
 | `LLM_FALLBACK` | No | Provider to use if the main one fails | `meta` |
 | `META_API_KEY` | No | Meta API key | |
-| `META_MODEL` | No | Meta model name | |
+| `META_MODEL` | No | Meta model name | `muse-spark-1.1` |
 | `META_API_BASE` | No | Meta API base URL | `https://api.meta.ai/v1` |
 | `APP_PORT` | No | Host port for the app (default `8080`) | `9000` |
 
@@ -124,7 +129,7 @@ After changing `.env`: `docker compose up -d --force-recreate backend`.
 **Backend** (run from the project root):
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt pytest
 playwright install chromium
 cp .env.example .env            # add your API key
 uvicorn backend.main:app --reload --port 8000
@@ -168,7 +173,7 @@ Interactive docs are available at **http://localhost:8080/docs** when the app is
 ResumeAI/
 ├── backend/                 # FastAPI application
 │   ├── main.py              # App entry point and resume pipeline
-│   ├── ai/                  # LLM clients, matching, ranking, rewriting, ATS score
+│   ├── ai/                  # LangGraph workflow, ChromaDB RAG, LLM clients, matching and guardrails
 │   ├── api/                 # CRUD routers for profile data
 │   ├── resume/              # Engine, builder, validator, highlighter, recruiter check
 │   ├── generator/           # HTML (Jinja2) and PDF (Playwright) generation
